@@ -53,25 +53,22 @@ if (gitStatus.trim()) {
   run('git commit -m "chore: prepare release"')
 }
 
-// If manual version, validate tag beforehand
-if (isManualVersion && tagAlreadyExists(`v${versionType}`)) {
-  console.error(`❌ Tag v${versionType} already exists.`)
-  process.exit(1)
+// ✅ PRE-CHECK TAG sebelum npm version dijalankan
+if (isManualVersion) {
+  if (tagAlreadyExists(`v${versionType}`)) {
+    console.error(`❌ Tag v${versionType} already exists.`)
+    process.exit(1)
+  }
 }
 
 console.log(`🚀 Bumping version (${versionType})...`)
 run(`npm version ${versionType}`)
 
+// ⛔️ Tidak perlu validasi ulang tag setelah ini — karena pasti sudah dibuat
 const version = JSON.parse(fs.readFileSync('./package.json', 'utf8')).version
 const tag = `v${version}`
 
-// Re-validate just in case
-if (tagAlreadyExists(tag)) {
-  console.error(`❌ Tag ${tag} already exists.`)
-  process.exit(1)
-}
-
-// Generate changelog
+// 🧾 Generate changelog
 generateChangelog(tag)
 
 console.log('📦 Validating bundle size...')
