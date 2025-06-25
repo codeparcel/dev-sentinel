@@ -28,8 +28,13 @@ function generateChangelog(version) {
     console.warn('⚠️  No previous tag found. Generating full log.')
   }
 
-  const range = lastTag ? `${lastTag}..HEAD` : ''
-  const log = execSync(`git log ${range} --oneline`).toString()
+  let log = ''
+  try {
+    log = execSync(`git log ${lastTag ? `${lastTag}..HEAD` : ''} --oneline`).toString()
+  } catch {
+    console.warn('⚠️  Failed to get git log.')
+    return
+  }
 
   if (!log.trim()) {
     console.log('⚠️  No new commits.')
@@ -45,6 +50,8 @@ function generateChangelog(version) {
   fs.appendFileSync('CHANGELOG.md', changelog)
   console.log('✅ Changelog updated.')
 }
+
+// --- Main ---
 
 console.log('🔍 Checking npm login...')
 run('npm whoami')
@@ -63,7 +70,7 @@ if (gitStatus.trim()) {
   run('git commit -m "chore: prepare release"')
 }
 
-// If manual version, validate tag beforehand
+// ⛔️ Validate tag BEFORE bumping
 if (isManualVersion && tagAlreadyExists(`v${versionType}`)) {
   console.error(`❌ Tag v${versionType} already exists.`)
   process.exit(1)
@@ -75,11 +82,7 @@ run(`npm version ${versionType}`)
 const version = JSON.parse(fs.readFileSync('./package.json', 'utf8')).version
 const tag = `v${version}`
 
-// Re-validate just in case
-if (tagAlreadyExists(tag)) {
-  console.error(`❌ Tag ${tag} already exists.`)
-  process.exit(1)
-}
+// ✅ NO need to check tag again — it's created by npm version
 
 generateChangelog(tag)
 
