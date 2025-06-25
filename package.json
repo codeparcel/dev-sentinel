@@ -1,0 +1,36 @@
+{
+  "name": "@codeparcel/dev-sentinel",
+  "version": "1.0.0",
+  "description": "Utility to control dev/production behavior for logs and runtime.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codeparcel/dev-sentinel.git"
+  },
+  "keywords": ["dev", "console", "logging", "production", "typescript"],
+  "author": "CodeParcel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/codeparcel/dev-sentinel/issues"
+  },
+  "homepage": "https://github.com/codeparcel/dev-sentinel#readme",
+  "devDependencies": {
+    "@types/node": "^24.0.4",
+    "typescript": "^5.8.3"
+  }
+}
