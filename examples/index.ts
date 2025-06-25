@@ -4,16 +4,19 @@ const isDev =
 
 // Dynamic import: ambil dari `src` kalau dev, `dist` kalau production
 const run = async () => {
-  const {
-    silenceConsole,
-    runIfDev,
-    silenceSpecificConsoleLevel,
-    restoreConsole,
-    wrapConsoleMethod,
-    wrappedConsoles,
-  } = isDev
+  const module = isDev
     ? await import('../src/index.ts')
-    : await import('../dist/index.js')
+    : await import('../dist/index.js') as typeof import('../src/index.ts')
+
+    const {
+        silenceConsole,
+        runIfDev,
+        silenceSpecificConsoleLevel,
+        restoreConsole,
+        wrapConsoleMethod,
+        wrappedConsoles,
+    } = module
+
 
   console.log('\n===== BEFORE silenceConsole =====')
   console.log('Log ini muncul')

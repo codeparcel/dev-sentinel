@@ -10,5 +10,6 @@
     "declaration": true,          // <--- generate .d.ts files
     "esModuleInterop": true
   },
-  "include": ["src", "env.d.ts"]
+  "include": ["src", "examples", "env.d.ts"],
+  "exclude": ["dist", "examples", "node_modules"]
 }

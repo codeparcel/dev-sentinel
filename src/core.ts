@@ -2,6 +2,10 @@ type ConsoleMethod = 'log' | 'info' | 'debug' | 'warn'
 
 const allowedMethods: ConsoleMethod[] = ['log', 'info', 'debug', 'warn']
 
+// Backup console methods untuk restore
+const originalConsole: Partial<Record<ConsoleMethod, (...args: any[]) => void>> = {}
+export const wrappedConsoles: Set<ConsoleMethod> = new Set()
+
 /**
  * Determine current environment mode
  * Supports both Node.js and modern ESM environments
@@ -38,18 +42,60 @@ export function getSilencedConsoleMethodsFromEnv(defaults: ConsoleMethod[] = all
  *
  * @param methods - Array of console method names to silence (e.g. log, info, warn)
  */
-export function silenceConsole(methods: ConsoleMethod[] = ['log', 'info', 'debug', 'warn']) {
+export function silenceConsole(methods: ConsoleMethod[] = allowedMethods) {
   if (!isDevEnv()) {
     methods.forEach((method) => {
-      (console as any)[method] = () => {}
+      if (!originalConsole[method]) {
+        originalConsole[method] = console[method]
+      }
+      console[method] = () => {}
+      wrappedConsoles.add(method)
     })
   }
 }
 
 /**
- * Run function only in development mode
+ * Silence a specific console level (e.g. only 'warn')
+ */
+export function silenceSpecificConsoleLevel(method: ConsoleMethod) {
+  if (!originalConsole[method]) {
+    originalConsole[method] = console[method]
+  }
+  console[method] = () => {}
+  wrappedConsoles.add(method)
+}
+
+/**
+ * Restore any previously silenced or wrapped console methods
+ */
+export function restoreConsole() {
+  wrappedConsoles.forEach((method) => {
+    if (originalConsole[method]) {
+      console[method] = originalConsole[method]!
+    }
+  })
+  wrappedConsoles.clear()
+}
+
+/**
+ * Wrap a console method with custom behavior
  *
- * @param fn - Function to run
+ * @param method - Console method to wrap (e.g. 'log')
+ * @param wrapper - Function that receives original console method and returns a new one
+ */
+export function wrapConsoleMethod(
+  method: ConsoleMethod,
+  wrapper: (original: (...args: any[]) => void) => (...args: any[]) => void
+) {
+  if (!originalConsole[method]) {
+    originalConsole[method] = console[method]
+  }
+  console[method] = wrapper(console[method])
+  wrappedConsoles.add(method)
+}
+
+/**
+ * Run function only in development mode
  */
 export function runIfDev(fn: () => void) {
   if (isDevEnv()) fn()
@@ -57,8 +103,6 @@ export function runIfDev(fn: () => void) {
 
 /**
  * Run function only in production mode
- *
- * @param fn - Function to run
  */
 export function runIfProd(fn: () => void) {
   if (!isDevEnv()) fn()
@@ -66,9 +110,6 @@ export function runIfProd(fn: () => void) {
 
 /**
  * Wrapper to conditionally return a value only in development mode
- *
- * @param value - Any value you want to return only in dev
- * @returns The value or undefined
  */
 export function devOnly<T>(value: T): T | undefined {
   return isDevEnv() ? value : undefined
@@ -76,9 +117,6 @@ export function devOnly<T>(value: T): T | undefined {
 
 /**
  * Wrapper to conditionally return a value only in production mode
- *
- * @param value - Any value you want to return only in production
- * @returns The value or undefined
  */
 export function prodOnly<T>(value: T): T | undefined {
   return !isDevEnv() ? value : undefined

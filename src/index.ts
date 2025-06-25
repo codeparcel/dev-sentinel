@@ -1,4 +1,5 @@
 export {
+  
   silenceConsole,
   runIfDev,
   runIfProd,
@@ -7,4 +8,7 @@ export {
   isDevEnv,
   getEnv,
   getSilencedConsoleMethodsFromEnv,
+  restoreConsole,
+  wrapConsoleMethod,
+  wrappedConsoles
 } from './core'

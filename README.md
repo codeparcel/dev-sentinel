@@ -14,15 +14,120 @@
 
 > 🛡️ Utility kecil tapi berguna buat mengatur perilaku antara `development` dan `production`, khususnya untuk logging dan conditional execution.
 
+---
+
+## ❓ Mengapa Dev Sentinel?
+
+🔹 Kadang kita butuh log tambahan, mock data, atau tool hanya saat development.
+
+🔹 Tapi repot kalau harus hapus kode-kode itu sebelum deploy ke production.
+
+🔹 Nah, `@codeparcel/dev-sentinel` bantu kamu bikin semua itu otomatis & bersih.
+
+🔹 Saat project membesar, log yang tidak terkontrol bisa:
+
+* Mengganggu debugging
+* Memenuhi console saat production
+* Menyebabkan kebocoran informasi tidak sengaja
+
+**Dev Sentinel** membantu kamu menjaga **kebersihan log dan keamanan runtime**, hanya dengan 1-2 baris kode.
+
+---
+
+## 📸 Demo Singkat
+
+```ts
+import { silenceConsole, runIfDev } from '@codeparcel/dev-sentinel'
+
+silenceConsole(['log'])
+console.log('Ini tidak akan tampil di production')
+
+runIfDev(() => {
+  console.debug('Ini hanya muncul di development')
+})
+```
+
+---
+
+## 📂 Contoh Langsung
+
+📄 [Contoh Langsung (examples/index.ts)](./examples/index.ts)
+
+---
+
+## ✅ Kompatibilitas
+
+* ✅ Node.js (v14+)
+* ✅ TypeScript (v4+)
+* ✅ Browser via bundler (Vite, Rollup, Webpack)
+* ✅ Framework: React, Vue, Svelte, dsb
+
+---
+
+## 🧩 Konfigurasi Tambahan (Optional)
+
+### 🔧 TypeScript (`tsconfig.json`)
+
+Tambahkan agar `import.meta.env` tidak error:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["vite/client"]
+  }
+}
+```
+
+Dan untuk memastikan file `.env` dikenali oleh tools seperti Vite atau tsx:
+
+```env
+NODE_ENV=development
+DEV_SENTINEL_LOG=false
+```
+
+---
+
+## 📊 Diagram Alur
+
+```text
+[deteksi environment]
+        │
+        ▼
++------------------------+
+|  getEnv()              |
++------------------------+
+        │
+        ▼
++------------------------+
+|  isDevEnv()            |
++------------------------+
+        │         │
+   true ▼         ▼ false
++-----------+   +-----------+
+| runIfDev  |   | runIfProd |
++-----------+   +-----------+
+        │
+        ▼
++------------------------+
+| silenceConsole() dll.  |
++------------------------+
+```
+
+---
+
 ## ✨ Fitur
 
 * 🔇 Nonaktifkan `console.log` (atau jenis console lainnya) saat production
 * ♻️ Jalankan kode hanya saat development (misal logging, dev tools, dsb)
 * 🧠 Wrapper devOnly/prodOnly yang fleksibel
-* 📆 Ringan, tanpa dependencies
+* 📦 Ringan, tanpa dependencies
+* 💡 Bisa dikontrol juga via `.env`
 * 💡 Cocok untuk project berbasis TypeScript / Vite / Node / Frontend frameworks
 
-## 📆 Instalasi
+## 📦 Instalasi
 
 ```bash
 npm install @codeparcel/dev-sentinel
@@ -68,6 +173,58 @@ Jika environment variable tidak diset sama sekali, fallback ke default: `['log',
 
 ---
 
+### `silenceSpecificConsoleLevel(method: ConsoleMethod)`
+
+Nonaktifkan satu jenis console secara spesifik (tanpa lihat environment):
+
+```ts
+import { silenceSpecificConsoleLevel } from '@codeparcel/dev-sentinel'
+
+silenceSpecificConsoleLevel('warn')
+```
+
+---
+
+### `wrapConsoleMethod(method: ConsoleMethod, wrapperFn)`
+
+Ubah perilaku bawaan `console` dengan pembungkus:
+
+```ts
+import { wrapConsoleMethod } from '@codeparcel/dev-sentinel'
+
+wrapConsoleMethod('log', (originalLog) => {
+  return (...args) => {
+    originalLog('[PREFIX]', ...args)
+  }
+})
+```
+
+---
+
+### `restoreConsole()`
+
+Kembalikan semua console method ke bentuk awal:
+
+```ts
+import { restoreConsole } from '@codeparcel/dev-sentinel'
+
+restoreConsole()
+```
+
+---
+
+### `wrappedConsoles: Set<ConsoleMethod>`
+
+Berisi daftar console method yang telah dimodifikasi:
+
+```ts
+import { wrappedConsoles } from '@codeparcel/dev-sentinel'
+
+console.log([...wrappedConsoles])
+```
+
+---
+
 ### `runIfDev(fn: () => void)`
 
 Jalankan fungsi hanya saat mode development:
@@ -84,7 +241,7 @@ runIfDev(() => {
 
 ### `runIfProd(fn: () => void)`
 
-Kebalikan dari `runIfDev`, ini jalan hanya saat **production**:
+Jalankan fungsi hanya saat mode production:
 
 ```ts
 import { runIfProd } from '@codeparcel/dev-sentinel'
@@ -134,7 +291,7 @@ if (isDevEnv()) {
 }
 ```
 
-## 🧲 Lingkungan Terdeteksi
+## 🧪 Lingkungan Terdeteksi
 
 `dev-sentinel` otomatis mendeteksi mode `development` dengan:
 
@@ -148,15 +305,20 @@ if (isDevEnv()) {
 ```ts
 import {
   silenceConsole,
+  getSilencedConsoleMethodsFromEnv,
   runIfDev,
   runIfProd,
   devOnly,
   prodOnly,
-  getEnv
+  getEnv,
+  silenceSpecificConsoleLevel,
+  wrapConsoleMethod,
+  restoreConsole,
+  wrappedConsoles
 } from '@codeparcel/dev-sentinel'
 
-// Matikan console.* saat production
-silenceConsole()
+// Matikan console.* sesuai setting dari env
+silenceConsole(getSilencedConsoleMethodsFromEnv())
 
 runIfDev(() => {
   console.debug('Only in dev')
@@ -168,7 +330,12 @@ runIfProd(() => {
 
 const config = devOnly({ debug: true }) || prodOnly({ debug: false })
 
-console.log('Current ENV:', getEnv())
+wrapConsoleMethod('log', (orig) => (...args) => orig('[DEV]', ...args))
+
+console.log('ENV:', getEnv())
+console.log([...wrappedConsoles])
+
+restoreConsole()
 ```
 
 ---
@@ -177,19 +344,11 @@ console.log('Current ENV:', getEnv())
 
 ### ❌ `'NODE_ENV' is not recognized as an internal or external command`
 
-**Masalah**:
-Command `NODE_ENV=development` tidak bisa jalan di Windows (karena sintaks ini hanya untuk macOS/Linux).
-
-**Solusi**:
-Gunakan [`cross-env`](https://www.npmjs.com/package/cross-env) agar skrip bisa dijalankan di semua platform.
-
-✅ Install:
+Gunakan [`cross-env`](https://www.npmjs.com/package/cross-env) agar environment variable bekerja di semua OS (Windows/Linux/macOS).
 
 ```bash
 npm install --save-dev cross-env
 ```
-
-✅ Contoh script di `package.json`:
 
 ```json
 "scripts": {
@@ -201,19 +360,11 @@ npm install --save-dev cross-env
 
 ### ❌ `'tsx' is not recognized as an internal or external command`
 
-**Masalah**:
-Perintah `tsx` tidak ditemukan karena belum terinstall.
-
-**Solusi**:
-Install [`tsx`](https://www.npmjs.com/package/tsx), runtime cepat untuk menjalankan file `.ts` tanpa build manual.
-
-✅ Install:
+Install [`tsx`](https://www.npmjs.com/package/tsx) secara lokal agar dapat menjalankan file `.ts` langsung.
 
 ```bash
 npm install --save-dev tsx
 ```
-
-✅ Contoh penggunaan:
 
 ```bash
 npx tsx examples/index.ts
@@ -221,33 +372,29 @@ npx tsx examples/index.ts
 
 ---
 
-### 🧲 Tips Tambahan (untuk Windows dan lintas platform)
+### ⚙️ Tips Tambahan
 
-* Gunakan `cross-env` untuk setting environment variable.
+* Gunakan fallback mode check:
 
-* Gunakan `tsx` untuk menjalankan file TypeScript langsung dari CLI.
+```ts
+const isDev = process.env.NODE_ENV === 'development' || import.meta?.env?.MODE === 'development'
+```
 
-* Untuk pengecekan mode, pastikan gunakan fallback seperti:
+* Tambahkan fallback ketika NODE\_ENV tidak tersedia:
 
-  ```ts
-  const isDev =
-    process.env.NODE_ENV === 'development' ||
-    import.meta?.env?.MODE === 'development'
-  ```
-
-* Tambahkan pengecekan manual jika diperlukan:
-
-  ```ts
-  if (!process.env.NODE_ENV) {
-    console.warn('⚠️ NODE_ENV is not set. Defaulting to production mode.')
-  }
-  ```
+```ts
+if (!process.env.NODE_ENV) {
+  console.warn('⚠️ NODE_ENV is not set. Defaulting to production mode.')
+}
+```
 
 ---
 
-## 🗾️ Dibuat oleh
+## 🧠 Dibuat oleh
 
-🧠 [CodeParcel](https://github.com/codeparcel) — untuk dev yang suka rapi, clean, dan tangguh.
+<img src="https://avatars.githubusercontent.com/u/217093625?s=400&u=58f87fd3009e11d1f98b7eda61547cee101109ee&v=4" alt="CodeParcel Logo" width="120" />
+
+[CodeParcel](https://github.com/codeparcel) — untuk dev yang suka rapi, clean, dan tangguh.
 
 ## 📄 Lisensi
 
