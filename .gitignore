@@ -4,3 +4,5 @@ dist-examples/
 .env
 *.log
 info/
+*.tgz
+releases/

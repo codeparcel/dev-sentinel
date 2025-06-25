@@ -60,7 +60,9 @@ console.log('🔧 Building project...')
 run('npm run build')
 
 console.log('📦 Packing for preview...')
-run('npm pack')
+fs.mkdirSync('releases', { recursive: true })
+const packName = execSync('npm pack').toString().trim()
+fs.renameSync(packName, `releases/${packName}`)
 
 console.log('🔍 Checking git status...')
 const gitStatus = execSync('git status --porcelain').toString()
@@ -68,6 +70,19 @@ if (gitStatus.trim()) {
   console.log('📝 Committing uncommitted changes...')
   run('git add .')
   run('git commit -m "chore: prepare release"')
+}
+
+if (isManualVersion) {
+  try {
+    const npmInfo = execSync(`npm view . versions --json`).toString()
+    const publishedVersions = JSON.parse(npmInfo)
+    if (publishedVersions.includes(versionType)) {
+      console.error(`❌ Version ${versionType} is already published on npm.`)
+      process.exit(1)
+    }
+  } catch {
+    console.warn('⚠️  Failed to check published versions on npm.')
+  }
 }
 
 // ⛔️ Validate tag BEFORE bumping

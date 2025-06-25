@@ -8,6 +8,7 @@ export {
   isDevEnv,
   getEnv,
   getSilencedConsoleMethodsFromEnv,
+  silenceSpecificConsoleLevel,
   restoreConsole,
   wrapConsoleMethod,
   wrappedConsoles
