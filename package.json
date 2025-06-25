@@ -1,6 +1,6 @@
 {
   "name": "@codeparcel/dev-sentinel",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Utility to control dev/production behavior for logs and runtime.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
