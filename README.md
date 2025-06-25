@@ -1,4 +1,4 @@
-# @codeparcel/dev-sentinel
+# Dev Sentinel @codeparcel
 
 [![GitHub Repo stars](https://img.shields.io/github/stars/codeparcel/dev-sentinel)](https://github.com/codeparcel/dev-sentinel/stargazers)
 [![GitHub last commit](https://img.shields.io/github/last-commit/codeparcel/dev-sentinel)](https://github.com/codeparcel/dev-sentinel/commits)
