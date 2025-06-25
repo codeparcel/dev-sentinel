@@ -1,5 +1,8 @@
-src
+src/
 tsconfig.json
 .gitignore
 .env
 *.log
+info/
+examples/
+dist-examples/

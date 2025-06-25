@@ -15,7 +15,11 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "dev:example": "ts-node examples/index.ts",
+    "example": "cross-env NODE_ENV=development tsx examples/index.ts",
+    "example:dev": "cross-env NODE_ENV=development tsx examples/index.ts",
+    "example:prod": "cross-env NODE_ENV=production tsx examples/index.ts"
   },
   "publishConfig": {
     "access": "public"
@@ -39,6 +43,9 @@
   "homepage": "https://github.com/codeparcel/dev-sentinel#readme",
   "devDependencies": {
     "@types/node": "^24.0.4",
+    "cross-env": "^7.0.3",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
     "typescript": "^5.8.3"
   }
 }
