@@ -4,16 +4,23 @@ import { execSync } from 'child_process'
 import { argv } from 'process'
 import fs from 'fs'
 
-const versionType = argv[2] || 'patch'
+const versionArg = argv[2] || 'patch'
+const isManualVersion = /^\d+\.\d+\.\d+$/.test(versionArg)
+const versionType = isManualVersion ? versionArg : versionArg || 'patch'
 
 function run(cmd) {
   console.log(`$ ${cmd}`)
   execSync(cmd, { stdio: 'inherit' })
 }
 
+function tagAlreadyExists(tag) {
+  const tags = execSync('git tag').toString().split('\n').map(t => t.trim())
+  return tags.includes(tag)
+}
+
 function generateChangelog(version) {
   console.log('📝 Generating changelog...')
-  const log = execSync(`git log $(git describe --tags --abbrev=0)..HEAD --oneline`).toString()
+  const log = execSync('git log $(git describe --tags --abbrev=0)..HEAD --oneline').toString()
   if (!log.trim()) {
     console.log('⚠️  No new commits since last tag.')
     return
@@ -46,24 +53,31 @@ if (gitStatus.trim()) {
   run('git commit -m "chore: prepare release"')
 }
 
+// If manual version, validate tag beforehand
+if (isManualVersion && tagAlreadyExists(`v${versionType}`)) {
+  console.error(`❌ Tag v${versionType} already exists.`)
+  process.exit(1)
+}
+
 console.log(`🚀 Bumping version (${versionType})...`)
 run(`npm version ${versionType}`)
-const version = JSON.parse(fs.readFileSync('./package.json', 'utf8')).version
 
-// Optional: validate tag doesn't already exist
-const tagExists = execSync('git tag').toString().split('\n').includes(`v${version}`)
-if (tagExists) {
-  console.error(`❌ Tag v${version} already exists.`)
+const version = JSON.parse(fs.readFileSync('./package.json', 'utf8')).version
+const tag = `v${version}`
+
+// Re-validate just in case
+if (tagAlreadyExists(tag)) {
+  console.error(`❌ Tag ${tag} already exists.`)
   process.exit(1)
 }
 
 // Generate changelog
-generateChangelog(`v${version}`)
+generateChangelog(tag)
 
 console.log('📦 Validating bundle size...')
 try {
   run('npx size-limit')
-} catch (err) {
+} catch {
   console.warn('⚠️  size-limit check failed or not configured. Skipping.')
 }
 
