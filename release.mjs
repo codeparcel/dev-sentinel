@@ -20,9 +20,19 @@ function tagAlreadyExists(tag) {
 
 function generateChangelog(version) {
   console.log('📝 Generating changelog...')
-  const log = execSync('git log $(git describe --tags --abbrev=0)..HEAD --oneline').toString()
+  let lastTag = ''
+
+  try {
+    lastTag = execSync('git describe --tags --abbrev=0').toString().trim()
+  } catch {
+    console.warn('⚠️  No previous tag found. Generating full log.')
+  }
+
+  const range = lastTag ? `${lastTag}..HEAD` : ''
+  const log = execSync(`git log ${range} --oneline`).toString()
+
   if (!log.trim()) {
-    console.log('⚠️  No new commits since last tag.')
+    console.log('⚠️  No new commits.')
     return
   }
 
@@ -53,22 +63,24 @@ if (gitStatus.trim()) {
   run('git commit -m "chore: prepare release"')
 }
 
-// ✅ PRE-CHECK TAG sebelum npm version dijalankan
-if (isManualVersion) {
-  if (tagAlreadyExists(`v${versionType}`)) {
-    console.error(`❌ Tag v${versionType} already exists.`)
-    process.exit(1)
-  }
+// If manual version, validate tag beforehand
+if (isManualVersion && tagAlreadyExists(`v${versionType}`)) {
+  console.error(`❌ Tag v${versionType} already exists.`)
+  process.exit(1)
 }
 
 console.log(`🚀 Bumping version (${versionType})...`)
 run(`npm version ${versionType}`)
 
-// ⛔️ Tidak perlu validasi ulang tag setelah ini — karena pasti sudah dibuat
 const version = JSON.parse(fs.readFileSync('./package.json', 'utf8')).version
 const tag = `v${version}`
 
-// 🧾 Generate changelog
+// Re-validate just in case
+if (tagAlreadyExists(tag)) {
+  console.error(`❌ Tag ${tag} already exists.`)
+  process.exit(1)
+}
+
 generateChangelog(tag)
 
 console.log('📦 Validating bundle size...')
