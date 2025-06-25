@@ -3,12 +3,12 @@
     "target": "ESNext",
     "module": "ESNext",
     "lib": ["DOM", "ESNext"],
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "outDir": "./dist",           // <--- folder output
     "rootDir": "./src",           // <--- folder source
     "strict": true,
     "declaration": true,          // <--- generate .d.ts files
     "esModuleInterop": true
   },
-  "include": ["src"]
+  "include": ["src", "env.d.ts"]
 }
