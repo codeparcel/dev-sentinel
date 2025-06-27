@@ -18,6 +18,17 @@ function tagAlreadyExists(tag) {
   return tags.includes(tag)
 }
 
+function checkVersionExistsOnNpm(version) {
+  try {
+    const npmInfo = execSync(`npm view . versions --json`).toString()
+    const publishedVersions = JSON.parse(npmInfo)
+    return publishedVersions.includes(version)
+  } catch {
+    console.warn('⚠️  Failed to check published versions on npm.')
+    return false
+  }
+}
+
 function generateChangelog(version) {
   console.log('📝 Generating changelog...')
   let lastTag = ''
@@ -72,22 +83,15 @@ if (gitStatus.trim()) {
   run('git commit -m "chore: prepare release"')
 }
 
-if (isManualVersion) {
-  try {
-    const npmInfo = execSync(`npm view . versions --json`).toString()
-    const publishedVersions = JSON.parse(npmInfo)
-    if (publishedVersions.includes(versionType)) {
-      console.error(`❌ Version ${versionType} is already published on npm.`)
-      process.exit(1)
-    }
-  } catch {
-    console.warn('⚠️  Failed to check published versions on npm.')
-  }
-}
-
 // ⛔️ Validate tag BEFORE bumping
 if (isManualVersion && tagAlreadyExists(`v${versionType}`)) {
   console.error(`❌ Tag v${versionType} already exists.`)
+  process.exit(1)
+}
+
+// ⛔️ Validate version on NPM BEFORE bumping
+if (isManualVersion && checkVersionExistsOnNpm(versionType)) {
+  console.error(`❌ Version ${versionType} is already published on npm.`)
   process.exit(1)
 }
 
