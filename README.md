@@ -5,6 +5,9 @@
 [![GitHub issues](https://img.shields.io/github/issues/codeparcel/dev-sentinel)](https://github.com/codeparcel/dev-sentinel/issues)
 [![GitHub forks](https://img.shields.io/github/forks/codeparcel/dev-sentinel)](https://github.com/codeparcel/dev-sentinel/network/members)
 [![npm version](https://img.shields.io/npm/v/@codeparcel/dev-sentinel.svg)](https://www.npmjs.com/package/@codeparcel/dev-sentinel)
+[![Coverage Status](https://img.shields.io/badge/coverage-92.5%25-brightgreen)](#)
+[![Test Status](https://img.shields.io/badge/tests-passing-brightgreen?logo=vitest)](#)
+[![Example](https://img.shields.io/badge/example-%F0%9F%93%9D%20Run%20Demo-blue)](https://github.com/codeparcel/dev-sentinel/blob/main/example/index.ts)
 [![bundle size](https://img.shields.io/bundlephobia/minzip/@codeparcel/dev-sentinel)](https://bundlephobia.com/package/@codeparcel/dev-sentinel)
 [![build](https://img.shields.io/github/actions/workflow/status/codeparcel/dev-sentinel/publish.yml)](https://github.com/codeparcel/dev-sentinel/actions)
 [![license](https://img.shields.io/npm/l/@codeparcel/dev-sentinel)](./LICENSE)
@@ -433,6 +436,57 @@ Set(0) {}
 development
 
 ===== DONE =====
+```
+# Dev Sentinel
+
+[![GitHub Repo stars](https://img.shields.io/github/stars/codeparcel/dev-sentinel?style=social)](https://github.com/codeparcel/dev-sentinel/stargazers)
+[![GitHub last commit](https://img.shields.io/github/last-commit/codeparcel/dev-sentinel?color=brightgreen\&logo=github)](https://github.com/codeparcel/dev-sentinel/commits/main)
+[![NPM version](https://img.shields.io/npm/v/@codeparcel/dev-sentinel?color=blue)](https://www.npmjs.com/package/@codeparcel/dev-sentinel)
+[![Coverage Status](https://img.shields.io/badge/coverage-92.5%25-brightgreen)](#)
+[![Test Status](https://img.shields.io/badge/tests-passing-brightgreen?logo=vitest)](#)
+
+---
+
+## ✅ Coverage & Testing
+
+Package ini telah dilengkapi **unit test menyeluruh** menggunakan [`vitest`](https://vitest.dev), dengan cakupan >90%:
+
+| Metric     | Status |
+| ---------- | ------ |
+| Statements | 93.93% |
+| Branches   | 73.91% |
+| Functions  | 100%   |
+| Lines      | 93.93% |
+
+### 🧪 Jalankan test:
+
+```bash
+npm run test
+```
+
+### 📊 Jalankan coverage:
+
+```bash
+npm run coverage
+```
+
+---
+
+## 🔍 Contoh Test (Cuplikan)
+
+```ts
+it('should silence and restore console.log', () => {
+  const original = console.log
+  let called = false
+  console.log = () => { called = true }
+
+  silenceConsole(['log'])
+  console.log('should not call')
+  expect(called).toBe(false)
+
+  restoreConsole()
+  console.log = original
+})
 ```
 
 ---

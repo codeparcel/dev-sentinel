@@ -9,7 +9,7 @@
     "strict": true,
     "declaration": true,          // <--- generate .d.ts files
     "esModuleInterop": true,
-    "types": ["node"]
+    "types": ["node", "vite/client", "vitest"]
   },
   "include": ["src", "examples", "src/types"],
   "exclude": ["dist", "examples", "node_modules"]
