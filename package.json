@@ -32,7 +32,9 @@
     "example:dev": "npx cross-env NODE_ENV=development tsx examples/index.ts",
     "example:prod": "npx cross-env NODE_ENV=production tsx examples/index.ts",
     
-    "dev:example": "npx ts-node examples/index.ts"
+    "dev:example": "npx ts-node examples/index.ts",
+    
+    "prepublishOnly": "npm run build && npm pkg fix"
   },
   "publishConfig": {
     "access": "public"
