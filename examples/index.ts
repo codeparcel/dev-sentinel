@@ -8,35 +8,34 @@ const run = async () => {
     ? await import('../src/index.ts')
     : await import('../dist/index.js') as typeof import('../src/index.ts')
 
-    const {
-        silenceConsole,
-        runIfDev,
-        silenceSpecificConsoleLevel,
-        restoreConsole,
-        wrapConsoleMethod,
-        wrappedConsoles,
-    } = module
-
+  const {
+    silenceConsole,
+    runIfDev,
+    silenceSpecificConsoleLevel,
+    restoreConsole,
+    wrapConsoleMethod,
+    wrappedConsoles,
+    devOnly,
+    prodOnly
+  } = module
 
   console.log('\n===== BEFORE silenceConsole =====')
   console.log('Log ini muncul')
   console.warn('Warning ini juga muncul')
   console.error('Error tetap muncul')
 
-  silenceConsole(['log', 'warn']) // nonaktifin log & warn
+  silenceConsole(['log', 'warn'])
 
   console.log('\n===== AFTER silenceConsole(["log", "warn"]) =====')
   console.log('Ini tidak akan muncul')
   console.warn('Ini juga tidak akan muncul')
   console.error('Error tetap muncul')
 
-  // restore console (jika fungsi disediakan)
   restoreConsole?.()
   console.log('\n===== AFTER restoreConsole() =====')
   console.log('Log muncul lagi')
   console.warn('Warning muncul lagi')
 
-  // silence hanya warning
   silenceSpecificConsoleLevel?.('warn')
   console.log('\n===== AFTER silenceSpecificConsoleLevel("warn") =====')
   console.log('Log muncul')
@@ -45,7 +44,6 @@ const run = async () => {
 
   restoreConsole?.()
 
-  // Test wrapConsoleMethod (misal prefix)
   wrapConsoleMethod?.('log', (originalLog) => {
     return (...args: any[]) => {
       originalLog('[WRAPPED LOG]:', ...args)
@@ -57,15 +55,26 @@ const run = async () => {
 
   restoreConsole?.()
 
-  // Coba runIfDev
   runIfDev?.(() => {
     console.info('\n===== runIfDev() triggered =====')
     console.info('Ini hanya muncul di development')
   })
 
-  // Optional: lihat isi wrappedConsoles
+  console.log('\n===== devOnly / prodOnly TEST =====')
+  console.log('devOnly:', devOnly?.('Hanya muncul di development'))
+  console.log('prodOnly:', prodOnly?.('Hanya muncul di production'))
+
+  console.log('\n===== ENV FLAGS =====')
+  console.log('NODE_ENV:', process.env.NODE_ENV)
+  console.log('DEV_SENTINEL_LOG:', process.env.DEV_SENTINEL_LOG)
+  console.log('DEV_SENTINEL_WARN:', process.env.DEV_SENTINEL_WARN)
+
   console.log('\n===== Wrapped Consoles Info =====')
   console.dir(wrappedConsoles ?? 'Tidak tersedia')
+
+  const env = typeof import.meta?.env !== 'undefined' ? import.meta.env : { MODE: process.env.NODE_ENV || 'production' }
+  console.log('\n===== ENV MODE DETECTED =====')
+  console.log(env.MODE)
 
   console.log('\n===== DONE =====')
 }

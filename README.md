@@ -11,6 +11,8 @@
 [![downloads](https://img.shields.io/npm/dm/@codeparcel/dev-sentinel.svg)](https://www.npmjs.com/package/@codeparcel/dev-sentinel)
 [![types](https://img.shields.io/npm/types/@codeparcel/dev-sentinel.svg)](https://www.npmjs.com/package/@codeparcel/dev-sentinel)
 [![node](https://img.shields.io/node/v/@codeparcel/dev-sentinel.svg)](https://nodejs.org)
+[![Open in GitHub Codespaces](https://img.shields.io/badge/dev-Codespaces-blue?logo=github)](https://github.com/codespaces/new?hide_repo_select=true&repo=codeparcel%2Fdev-sentinel)
+
 
 > 🛡️ Utility kecil tapi berguna buat mengatur perilaku antara `development` dan `production`, khususnya untuk logging dan conditional execution.
 
@@ -386,6 +388,51 @@ const isDev = process.env.NODE_ENV === 'development' || import.meta?.env?.MODE =
 if (!process.env.NODE_ENV) {
   console.warn('⚠️ NODE_ENV is not set. Defaulting to production mode.')
 }
+```
+
+## 🧪 Contoh Output Lengkap
+
+```txt
+===== BEFORE silenceConsole =====
+Log ini muncul
+Warning ini juga muncul
+Error tetap muncul
+
+===== AFTER silenceConsole(["log", "warn"]) =====
+Ini tidak akan muncul
+Ini juga tidak akan muncul
+Error tetap muncul
+
+===== AFTER restoreConsole() =====
+Log muncul lagi
+Warning muncul lagi
+
+===== AFTER silenceSpecificConsoleLevel("warn") =====
+Log muncul
+Error tetap muncul
+
+===== AFTER wrapConsoleMethod for "log" =====
+[WRAPPED LOG]: Ini harusnya ada prefix
+
+===== runIfDev() triggered =====
+Ini hanya muncul di development
+
+===== devOnly / prodOnly TEST =====
+devOnly: Hanya muncul di development
+prodOnly: undefined
+
+===== ENV FLAGS =====
+NODE_ENV: development
+DEV_SENTINEL_LOG: undefined
+DEV_SENTINEL_WARN: undefined
+
+===== Wrapped Consoles Info =====
+Set(0) {}
+
+===== ENV MODE DETECTED =====
+development
+
+===== DONE =====
 ```
 
 ---

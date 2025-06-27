@@ -14,6 +14,7 @@
   "files": [
     "dist"
   ],
+  "sideEffects": false,
   "size-limit": [
     {
       "path": "dist/index.js",
@@ -26,10 +27,12 @@
     "clean": "rimraf dist",
     "rebuild": "npm run clean && npm run build",
     "push:all": "git push && git push --tags",
-    "dev:example": "ts-node examples/index.ts",
-    "example": "cross-env NODE_ENV=development tsx examples/index.ts",
-    "example:dev": "cross-env NODE_ENV=development tsx examples/index.ts",
-    "example:prod": "cross-env NODE_ENV=production tsx examples/index.ts"
+    
+    "example": "npx tsx examples/index.ts",
+    "example:dev": "npx cross-env NODE_ENV=development tsx examples/index.ts",
+    "example:prod": "npx cross-env NODE_ENV=production tsx examples/index.ts",
+    
+    "dev:example": "npx ts-node examples/index.ts"
   },
   "publishConfig": {
     "access": "public"
@@ -58,5 +61,8 @@
     "ts-node": "^10.9.2",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.0"
   }
 }
