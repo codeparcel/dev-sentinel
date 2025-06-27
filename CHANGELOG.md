@@ -12,3 +12,5 @@
 - Deleted TYPE override of `ImportMetaEnv.MODE` to fix Vite compatibility issue (TS2430/TS2687)
 - Introduced `validateEnv()` to check runtime `MODE` validity
 - Auto-trigger `validateEnv()` at package load
+
+Thanks
