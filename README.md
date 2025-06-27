@@ -7,7 +7,7 @@
 [![npm version](https://img.shields.io/npm/v/@codeparcel/dev-sentinel.svg)](https://www.npmjs.com/package/@codeparcel/dev-sentinel)
 [![Coverage Status](https://img.shields.io/badge/coverage-92.5%25-brightgreen)](#)
 [![Test Status](https://img.shields.io/badge/tests-passing-brightgreen?logo=vitest)](#)
-[![Example](https://img.shields.io/badge/example-%F0%9F%93%9D%20Run%20Demo-blue)](https://github.com/codeparcel/dev-sentinel/blob/main/example/index.ts)
+[![Example](https://img.shields.io/badge/example-%F0%9F%93%9D%20Run%20Demo-blue)](https://github.com/codeparcel/dev-sentinel/blob/main/examples/index.ts)
 [![bundle size](https://img.shields.io/bundlephobia/minzip/@codeparcel/dev-sentinel)](https://bundlephobia.com/package/@codeparcel/dev-sentinel)
 [![build](https://img.shields.io/github/actions/workflow/status/codeparcel/dev-sentinel/publish.yml)](https://github.com/codeparcel/dev-sentinel/actions)
 [![license](https://img.shields.io/npm/l/@codeparcel/dev-sentinel)](./LICENSE)
