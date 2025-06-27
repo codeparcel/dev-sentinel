@@ -6,3 +6,5 @@ dist-examples/
 info/
 *.tgz
 releases/
+doc.info/
+coverage/
