@@ -9,6 +9,7 @@ const run = async () => {
     : await import('../dist/index.js') as typeof import('../src/index.ts')
 
   const {
+    
     silenceConsole,
     runIfDev,
     silenceSpecificConsoleLevel,
